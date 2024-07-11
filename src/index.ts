@@ -1,6 +1,6 @@
 import type { HomeAssistant } from 'custom-card-helpers';
-import { LitElement, html, } from "lit-element";
-import type { ConfigType } from "./types/Config.type";
+import { LitElement, TemplateResult, html, } from "lit-element";
+import type { ConfigType, EntityArrayElement } from "./types/Config.type";
 class TextElement extends LitElement {
     private declare hass: HomeAssistant;
     private declare config: ConfigType;
@@ -30,9 +30,29 @@ class TextElement extends LitElement {
       ${this.config.text ? this.config.text : this.getValue()}
     </div>`;
     }
-    private getValue = (): string => {
+    private getValue(): TemplateResult[] | string {
 
-        const getEntityValue = (entity: string) => {
+
+
+        if (Array.isArray(this.config.entity)) {
+
+            const res = this.config.entity.map((a) => this.getEntityValue(a));
+
+            if (this.config.html_element) return res as TemplateResult[];
+
+            else return res.join(",");
+        }
+
+        else if (typeof this.config.entity === "string")
+            return this.getEntityValue(this.config.entity) as string;
+
+        return "";
+
+
+    };
+    private getEntityValue(entity: EntityArrayElement) {
+
+        const getEntityStatus = (entity: string) => {
             if (
                 this.hass.states[entity].state == "unavailable" ||
                 this.hass.states[entity].state == "unknown"
@@ -42,16 +62,21 @@ class TextElement extends LitElement {
             return this.hass.states[entity].state;
         }
 
-        if (Array.isArray(this.config.entity))
-            return this.config.entity.map((a) => getEntityValue(a)).join(",");
+        if (typeof entity === "object") {
+            return this.encapsulateValue(getEntityStatus(entity.entity) + entity.unit);
+        }
 
-        else if (typeof this.config.entity === "string")
-            return getEntityValue(this.config.entity);
-
-        return "";
+        return this.encapsulateValue(getEntityStatus(entity));
 
 
-    };
+    }
+
+    private encapsulateValue(val: string): TemplateResult | string {
+        if (this.config.html_element)
+            return html`<span>${val}</span>`
+
+        return val;
+    }
     public getCardSize() {
         return 1;
     }

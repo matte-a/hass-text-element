@@ -47,19 +47,6 @@ const lit_html_t=globalThis,lit_html_i=lit_html_t.trustedTypes,lit_html_s=lit_ht
 class TextElement extends lit_element_s {
     constructor() {
         super();
-        this.getValue = () => {
-            const getEntityValue = (entity) => {
-                if (this.hass.states[entity].state == "unavailable" ||
-                    this.hass.states[entity].state == "unknown")
-                    return "NA";
-                return this.hass.states[entity].state;
-            };
-            if (Array.isArray(this.config.entity))
-                return this.config.entity.map((a) => getEntityValue(a)).join(",");
-            else if (typeof this.config.entity === "string")
-                return getEntityValue(this.config.entity);
-            return "";
-        };
     }
     static get properties() {
         return {
@@ -82,6 +69,36 @@ class TextElement extends lit_element_s {
         return x `<div class="text-element" style="${style}">
       ${this.config.text ? this.config.text : this.getValue()}
     </div>`;
+    }
+    getValue() {
+        if (Array.isArray(this.config.entity)) {
+            const res = this.config.entity.map((a) => this.getEntityValue(a));
+            if (this.config.html_element)
+                return res;
+            else
+                return res.join(",");
+        }
+        else if (typeof this.config.entity === "string")
+            return this.getEntityValue(this.config.entity);
+        return "";
+    }
+    ;
+    getEntityValue(entity) {
+        const getEntityStatus = (entity) => {
+            if (this.hass.states[entity].state == "unavailable" ||
+                this.hass.states[entity].state == "unknown")
+                return "NA";
+            return this.hass.states[entity].state;
+        };
+        if (typeof entity === "object") {
+            return this.encapsulateValue(getEntityStatus(entity.entity) + entity.unit);
+        }
+        return this.encapsulateValue(getEntityStatus(entity));
+    }
+    encapsulateValue(val) {
+        if (this.config.html_element)
+            return x `<span>${val}</span>`;
+        return val;
     }
     getCardSize() {
         return 1;
