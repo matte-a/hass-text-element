@@ -4,20 +4,23 @@ import type { ConfigType } from "./types/Config.type";
 class TextElement extends LitElement {
     private declare hass: HomeAssistant;
     private declare config: ConfigType;
+    constructor() {
+        super();
+    }
     static get properties() {
         return {
             hass: {},
             config: {},
         };
     }
-    setConfig(config: ConfigType) {
+    public setConfig(config: ConfigType) {
         if (!config.text && !config.entity) {
             throw new Error("You need to define a text: or an entity in your configuration");
         }
         this.config = config;
     }
 
-    render() {
+    public render() {
         const style = this.config.card_style
             ? Object.entries(this.config.card_style)
                 .map(([k, v]) => `${k}:${v}`)
@@ -27,7 +30,7 @@ class TextElement extends LitElement {
       ${this.config.text ? this.config.text : this.getValue()}
     </div>`;
     }
-    getValue = (): string => {
+    private getValue = (): string => {
 
         const getEntityValue = (entity: string) => {
             if (
@@ -49,7 +52,7 @@ class TextElement extends LitElement {
 
 
     };
-    getCardSize() {
+    public getCardSize() {
         return 1;
     }
 }

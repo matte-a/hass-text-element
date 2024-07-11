@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES5",
+    "target": "ES6",
     "removeComments": true,
     "preserveConstEnums": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "lib": [
       "es5",
       "es6",
