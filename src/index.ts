@@ -54,7 +54,7 @@ class TextElement extends LitElement {
 
         const getEntityStatus = (entity: string) => {
             if (
-                this.hass.states[entity].state == "unavailable" ||
+                !this.hass.states[entity] || this.hass.states[entity].state == "unavailable" ||
                 this.hass.states[entity].state == "unknown"
             )
                 return "NA";
