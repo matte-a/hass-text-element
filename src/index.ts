@@ -59,7 +59,8 @@ class TextElement extends LitElement {
             )
                 return "NA";
 
-            return this.hass.states[entity].state;
+            const res = this.hass.states[entity].state;
+            return isNaN(res) ? res : (+res).toFixed(2);
         }
 
         if (typeof entity === "object") {
