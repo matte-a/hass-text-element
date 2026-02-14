@@ -52,22 +52,23 @@ class TextElement extends LitElement {
     };
     private getEntityValue(entity: EntityArrayElement) {
 
-        const getEntityStatus = (entity: string) => {
+        const getEntityStatus = (entity: string, attribute?: string) => {
+            const entityValue = this.hass.states[entity];
             if (
-                !this.hass.states[entity] || this.hass.states[entity].state == "unavailable" ||
-                this.hass.states[entity].state == "unknown"
+                !entityValue || entityValue.state == "unavailable" ||
+                entityValue.state == "unknown"
             )
                 return "NA";
 
-            const res = this.hass.states[entity].state;
-            return isNaN(res) ? res : (+res).toFixed(2);
+            const res = attribute ? entityValue.attributes[attribute] : entityValue.state;
+            return isNaN(+res) ? res : (+res).toFixed(2);
         }
 
         if (typeof entity === "object") {
-            return this.encapsulateValue(getEntityStatus(entity.entity) + entity.unit);
+            return this.encapsulateValue(getEntityStatus(entity.entity, entity.attribute) + entity.unit);
         }
 
-        return this.encapsulateValue(getEntityStatus(entity));
+        return this.encapsulateValue(getEntityStatus(entity, undefined));
 
 
     }

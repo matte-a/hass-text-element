@@ -84,16 +84,18 @@ class TextElement extends lit_element_s {
     }
     ;
     getEntityValue(entity) {
-        const getEntityStatus = (entity) => {
-            if (!this.hass.states[entity] || this.hass.states[entity].state == "unavailable" ||
-                this.hass.states[entity].state == "unknown")
+        const getEntityStatus = (entity, attribute) => {
+            const entityValue = this.hass.states[entity];
+            if (!entityValue || entityValue.state == "unavailable" ||
+                entityValue.state == "unknown")
                 return "NA";
-            return this.hass.states[entity].state;
+            const res = attribute ? entityValue.attributes[attribute] : entityValue.state;
+            return isNaN(+res) ? res : (+res).toFixed(2);
         };
         if (typeof entity === "object") {
-            return this.encapsulateValue(getEntityStatus(entity.entity) + entity.unit);
+            return this.encapsulateValue(getEntityStatus(entity.entity, entity.attribute) + entity.unit);
         }
-        return this.encapsulateValue(getEntityStatus(entity));
+        return this.encapsulateValue(getEntityStatus(entity, undefined));
     }
     encapsulateValue(val) {
         if (this.config.html_element)

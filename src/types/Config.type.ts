@@ -7,4 +7,4 @@ export type ConfigType = {
 }
 
 export type EntityType = string | EntityArrayElement[];
-export type EntityArrayElement = string | { entity: string, unit: string };
+export type EntityArrayElement = string | { entity: string, unit: string, attribute?: string };
